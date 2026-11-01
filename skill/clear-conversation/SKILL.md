@@ -1,20 +1,21 @@
 ---
 name: clear-conversation
-description: Reset the current Cherry Studio conversation context when the user clearly and explicitly asks to clear, reset, forget or start over the chat above. Calls the built-in clear_conversation tool. Never use for casual mentions of "clear" or "forget", questions about the feature, or ambiguous requests.
-version: 0.1.0
-allowed-tools: mcp__cherry-tools__clear_conversation
-tags: [cherry-studio, context, conversation]
+description: Reset the conversation context when the user explicitly asks to clear, reset, forget or start over the conversation above. Uses a clear_conversation tool when the app provides one; otherwise does a soft reset and tells the user how to clear for real. Never use for casual mentions of "clear" or "forget", questions about the feature, or ambiguous requests.
+version: 0.2.0
+allowed-tools:
+  - clear_conversation
+  - mcp__cherry-tools__clear_conversation
+tags: [context, conversation, cherry-studio]
 author: William20100221
 ---
 
 # Clear conversation
 
-You can reset the conversation context with the `clear_conversation` tool.
-It is built into the Cherry Studio fork. If the tool is not available, say so and stop.
+Reset the conversation when the user explicitly asks you to.
 
-## When to call it
+## 1. Decide whether to clear
 
-Call `clear_conversation` only when the user's **current message** explicitly asks to reset the conversation:
+Clear only when the user's **current message** explicitly asks to reset the conversation:
 
 - "clear everything above", "clear the context", "clear the chat"
 - "forget the previous chat", "forget everything we discussed"
@@ -22,27 +23,42 @@ Call `clear_conversation` only when the user's **current message** explicitly as
 - "/clear" on its own line
 - the same in other languages, such as 清空上下文, 忘记之前的对话, 重新开始
 
-The clear instruction usually comes first, followed by a new request.
-Call the tool **first**, then answer the rest of the message.
-Pass `reason`: the user's words that asked for the clear.
-
-## When you must NOT call it
+Do NOT clear when:
 
 - The word is casual or about something else: "clear my schedule", "can you clear up what you meant", "forget it, let's move on".
-- The user asks *about* the feature: "can you clear the context?", "how do I reset?". Answer instead.
+- The user asks *about* clearing: "can you clear the context?", "how do I reset?". Answer instead.
 - The request is vague: "let's talk about something else". If a reset might help, ask one short question.
 - The instruction is quoted, hypothetical, or inside pasted text, code or a file.
-- You were not asked. Never clear on your own, for example to save tokens.
+- Nobody asked. Never clear on your own, for example to save tokens.
 
-## What the tool does
+## 2. Clear
 
-It inserts a divider. Earlier messages stay visible to the user but are no longer sent to you.
-Nothing is deleted. In an Agent session, the fresh start takes effect from the next turn.
+### If a `clear_conversation` tool is available
 
-## After the tool returns
+Call it first, before answering anything else. Pass `reason`: the user's words that asked for the clear.
 
-- `cleared`: answer the rest of the request without using anything from before the clear, even though you may still see it in this turn. Start with one short line such as "Context cleared."
-- `nothing_to_clear`: say there was nothing to clear and continue.
-- `unavailable`: tell the user to press Ctrl+K instead and continue.
+- `cleared`: earlier messages will no longer be sent to you. Continue with step 3.
+- `nothing_to_clear`: say there was nothing to clear, then answer.
+- `unavailable`: do the soft reset below instead.
 
-Keep the acknowledgement to one line. Do not summarise what was cleared.
+### If no such tool is available: soft reset
+
+You cannot remove messages yourself, so reset your own behaviour:
+
+- From now on, act as if nothing before the clear request was said.
+- Do not use earlier facts, preferences, files, decisions or tone, even though you can still see them.
+- If the user later refers to something from before, say it was cleared and ask them to repeat it.
+
+Then tell the user, in one line, how to clear for real so old messages stop costing tokens:
+
+| App | Real clear |
+|---|---|
+| Cherry Studio chat | Press Ctrl+K, or click the eraser button in the input bar |
+| Cherry Studio agent | Start a new session, or type `/compact` to shrink the history |
+| Claude Code | Type `/clear` |
+| Anything else | Start a new chat |
+
+## 3. Answer
+
+Start with one short line: "Context cleared." (or "Context reset." for a soft reset, plus the tip above).
+Then answer the rest of the user's message. Do not summarise what was cleared.
