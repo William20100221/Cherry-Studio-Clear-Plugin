@@ -29,7 +29,7 @@ Agents load skills, so install this one to give the agent the full rules.
 
 1. **Install the skill.** Pick one:
    - **From GitHub:** open **Library → Skills**, choose **Install from GitHub**, and paste
-     `https://github.com/William20100221/Cherry-Studio-Clear-Plugin/blob/main/skill/clear-conversation/SKILL.md`
+     `https://github.com/William20100221/Cherry-Studio-Clear-Plugin/blob/feature/clear-conversation-skill/skill/clear-conversation/SKILL.md`
    - **From a ZIP:** in PowerShell, from the repo folder, run
      `Compress-Archive -Path skill\clear-conversation -DestinationPath clear-conversation.zip`,
      then open **Library → Skills → Local import** and pick the ZIP.
