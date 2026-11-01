@@ -33,18 +33,14 @@ See the [skill README](skill/clear-conversation/README.md) for install steps and
 | Needs the skill | No, the tool's description is enough | Yes, for the full rules |
 | Where the divider goes | Directly above the message that asked | After the current turn |
 | When the fresh start begins | The next turn | The next turn, once the session is idle |
-| Undo | Click the divider | Not yet |
+| Undo | Click the divider, or the Undo toast | The Undo toast (10 s) |
+| Ctrl+K / eraser | Divider now, or a queued clear while streaming | Same |
+| Ctrl+L | Stops the reply, then divider or delete (setting), queue continues | Same |
+| Delete mode | Always asks first, also when the model requests it | Same |
 
-In an Agent session, follow-ups already queued behind that turn still run with the old context.
+Settings → Context Management has two switches: the default clear action (divider or delete) and whether the assistant may clear at all.
 
-### Not built yet
-
-These parts of [the design](docs/clear-context-design.md) are not built:
-
-- Delete mode with a confirmation dialog
-- Ctrl+L while a reply is streaming
-- Clear items in the follow-up queue
-- A setting to turn the tool off
+In an Agent session, follow-ups already queued behind the clearing turn still run with the old context.
 
 ## License
 
