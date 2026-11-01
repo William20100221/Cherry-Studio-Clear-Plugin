@@ -3,9 +3,16 @@
 Reset a conversation by asking in plain words, for example:
 "clear everything above, then explain merge sort".
 
-This repo has two parts. Each works on its own.
+This repo has three parts. Each works on its own.
 
-## 1. The standalone skill
+## 1. The MCP server: real clear for stock Cherry Studio chats
+
+[`mcp-server`](mcp-server) is a tiny tool you add in Cherry Studio's MCP settings. No fork needed, and it really saves tokens.
+It works by writing the Ctrl+K divider into Cherry Studio's database, with a backup first. If a Cherry Studio update changes the database, it stops and asks you to update.
+
+See the [MCP server README](mcp-server/README.md) for install steps.
+
+## 2. The standalone skill
 
 [`skill/clear-conversation`](skill/clear-conversation) is an Agent Skill. It works in stock Cherry Studio agents, Claude Code, and other apps that load skills.
 
@@ -14,7 +21,7 @@ This repo has two parts. Each works on its own.
 
 See the [skill README](skill/clear-conversation/README.md) for install steps and phrases.
 
-## 2. The Cherry Studio fork (optional upgrade)
+## 3. The Cherry Studio fork (optional upgrade)
 
 [William20100221/cherry-studio, branch `feature/clear-context-tool`](https://github.com/William20100221/cherry-studio/tree/feature/clear-context-tool) adds a built-in `clear_conversation` tool. With it, a clear is real: older messages stay on screen but are no longer sent to the model, which saves tokens.
 

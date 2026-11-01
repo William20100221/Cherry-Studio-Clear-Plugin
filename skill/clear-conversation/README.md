@@ -16,6 +16,8 @@ It works in any app that loads Agent Skills, such as Cherry Studio agents and Cl
 
 A skill on its own cannot delete or hide messages, because only the app controls what it sends to the model. That is why the soft reset also tells you the app's own way to clear for real.
 
+For a real clear in stock Cherry Studio chats, add the [clear-conversation MCP server](../../mcp-server/README.md).
+
 The real clear needs the Cherry Studio build at
 [William20100221/cherry-studio, branch `feature/clear-context-tool`](https://github.com/William20100221/cherry-studio/tree/feature/clear-context-tool).
 
