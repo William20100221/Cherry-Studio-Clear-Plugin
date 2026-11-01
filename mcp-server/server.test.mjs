@@ -9,7 +9,7 @@ import { DatabaseSync } from 'node:sqlite'
 import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
-import { clearConversation, NeedsUpdateError } from './server.mjs'
+import { check, clearConversation, NeedsUpdateError } from './server.mjs'
 
 const SOURCE_DB =
   process.env.CLEAR_TEST_SOURCE_DB ?? path.join(process.env.APPDATA ?? '', 'CherryStudioDev', 'Data', 'cherrystudio.sqlite')
@@ -107,4 +107,18 @@ test('answers MCP requests over stdio and reports update errors to the model', a
   assert.equal(replies[1].result.tools[0].name, 'clear_conversation')
   assert.equal(replies[2].result.isError, true)
   assert.match(replies[2].result.content[0].text, /needs an update.*releases\/latest/)
+})
+
+test('--check reports a missing database as BAD and an unknown layout as BAD', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'clear-conv-'))
+  const missing = await check(path.join(dir, 'nope.sqlite'))
+  assert.ok(missing.some((line) => line.startsWith('BAD no Cherry Studio database')))
+
+  const old = path.join(dir, 'old.sqlite')
+  const db = new DatabaseSync(old)
+  db.exec('CREATE TABLE message (id TEXT)')
+  db.close()
+  const unknown = await check(old)
+  assert.ok(unknown.some((line) => /^BAD the message table has no/.test(line)))
+  assert.ok(unknown.some((line) => line.startsWith('OK  Node')))
 })

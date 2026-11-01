@@ -10,6 +10,9 @@ This repo has three parts. Each works on its own.
 [`mcp-server`](mcp-server) is a tiny tool you add in Cherry Studio's MCP settings. No fork needed, and it really saves tokens.
 It works by writing the Ctrl+K divider into Cherry Studio's database, with a backup first. If a Cherry Studio update changes the database, it stops and asks you to update.
 
+- Needs Node.js 22.13 or newer. `node server.mjs --check` verifies your setup and tells you when a newer version exists.
+- Chats only. Agents keep their memory in Claude's own transcript, which nothing outside the app can reset; use the fork for agents.
+
 See the [MCP server README](mcp-server/README.md) for install steps.
 
 ## 2. The standalone skill

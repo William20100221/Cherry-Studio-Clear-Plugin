@@ -11,15 +11,17 @@
  */
 
 import { randomBytes } from 'node:crypto'
-import { mkdirSync, readdirSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import readline from 'node:readline'
 import { DatabaseSync } from 'node:sqlite'
 import { pathToFileURL } from 'node:url'
 
-export const VERSION = '0.3.0'
+export const VERSION = '0.4.0'
 const RELEASES_URL = 'https://github.com/William20100221/Cherry-Studio-Clear-Plugin/releases/latest'
+const LATEST_API = 'https://api.github.com/repos/William20100221/Cherry-Studio-Clear-Plugin/releases/latest'
+const MIN_NODE = [22, 13]
 const REQUIRED_COLUMNS = ['id', 'parent_id', 'topic_id', 'role', 'data', 'status', 'created_at', 'updated_at', 'deleted_at']
 const KEEP_BACKUPS = 3
 
@@ -161,6 +163,37 @@ export function clearConversation(dbPath = defaultDbPath()) {
   }
 }
 
+/** `node server.mjs --check`: Node version, database, layout and newest release. Lines start with OK, BAD, UPDATE or ??. */
+export async function check(dbPath = defaultDbPath()) {
+  const lines = []
+  const [major, minor] = process.versions.node.split('.').map(Number)
+  const nodeOk = major > MIN_NODE[0] || (major === MIN_NODE[0] && minor >= MIN_NODE[1])
+  lines.push(nodeOk ? `OK  Node ${process.versions.node}` : `BAD Node ${process.versions.node}; this tool needs ${MIN_NODE.join('.')} or newer`)
+  if (!existsSync(dbPath)) {
+    lines.push(`BAD no Cherry Studio database at ${dbPath}; set CHERRY_STUDIO_DB to its full path`)
+  } else {
+    try {
+      const db = new DatabaseSync(dbPath, { readOnly: true })
+      try {
+        checkSchema(db)
+      } finally {
+        db.close()
+      }
+      lines.push(`OK  database layout recognised at ${dbPath}`)
+    } catch (error) {
+      lines.push(`BAD ${error.message}; get a newer version at ${RELEASES_URL}`)
+    }
+  }
+  try {
+    const response = await fetch(LATEST_API, { headers: { accept: 'application/vnd.github+json' } })
+    const latest = (await response.json()).tag_name?.replace(/^v/, '')
+    lines.push(latest === VERSION ? `OK  version ${VERSION} is the newest` : `UPDATE ${VERSION} installed, ${latest} available at ${RELEASES_URL}`)
+  } catch {
+    lines.push('??  could not check for a newer version (offline?)')
+  }
+  return lines
+}
+
 function callTool() {
   try {
     return { content: [{ type: 'text', text: JSON.stringify(clearConversation()) }] }
@@ -211,4 +244,13 @@ function main() {
   })
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main()
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  if (process.argv.includes('--check')) {
+    check().then((lines) => {
+      console.log(lines.join('\n'))
+      process.exitCode = lines.some((line) => line.startsWith('BAD')) ? 1 : 0
+    })
+  } else {
+    main()
+  }
+}
