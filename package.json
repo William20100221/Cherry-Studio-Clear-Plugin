@@ -24,7 +24,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/William20100221/Cherry-Studio-Clear-Plugin.git"
+    "url": "git+https://github.com/William20100221/dsh-clear-conversation.git"
   },
   "engines": {
     "dsh": ">=0.2.1-rc.5 <0.3.0"

@@ -27,7 +27,7 @@ The real clear needs the Cherry Studio build at
 
 1. **Add the skill.** Pick one:
    - **From GitHub:** open **Library → Skills**, choose **Install from GitHub**, and paste
-     `https://github.com/William20100221/Cherry-Studio-Clear-Plugin/blob/main/skill/clear-conversation/SKILL.md`
+     `https://github.com/William20100221/dsh-clear-conversation/blob/main/skill/clear-conversation/SKILL.md`
    - **From a ZIP:** download `clear-conversation.zip` from the repo's latest release, then open **Library → Skills → Local import** and pick it.
 2. **Turn it on.** Open the agent's settings, go to **Skills → Manage Skills**, and enable **clear-conversation**.
 

@@ -19,8 +19,8 @@ import { DatabaseSync } from 'node:sqlite'
 import { pathToFileURL } from 'node:url'
 
 export const VERSION = '0.4.0'
-const RELEASES_URL = 'https://github.com/William20100221/Cherry-Studio-Clear-Plugin/releases/latest'
-const LATEST_API = 'https://api.github.com/repos/William20100221/Cherry-Studio-Clear-Plugin/releases/latest'
+const RELEASES_URL = 'https://github.com/William20100221/dsh-clear-conversation/releases/latest'
+const LATEST_API = 'https://api.github.com/repos/William20100221/dsh-clear-conversation/releases/latest'
 const MIN_NODE = [22, 13]
 const REQUIRED_COLUMNS = ['id', 'parent_id', 'topic_id', 'role', 'data', 'status', 'created_at', 'updated_at', 'deleted_at']
 const KEEP_BACKUPS = 3

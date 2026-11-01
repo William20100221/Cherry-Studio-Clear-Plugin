@@ -22,7 +22,7 @@ It's a workaround: it edits Cherry Studio's database from outside the app. These
 
 ## Install
 
-1. Download `clear-conversation-mcp-server.zip` from the [latest release](https://github.com/William20100221/Cherry-Studio-Clear-Plugin/releases/latest) and unzip it somewhere permanent, for example `C:\Tools\clear-conversation`.
+1. Download `clear-conversation-mcp-server.zip` from the [latest release](https://github.com/William20100221/dsh-clear-conversation/releases/latest) and unzip it somewhere permanent, for example `C:\Tools\clear-conversation`.
 2. Check your setup. In a terminal, run:
 
    ```bash
@@ -54,7 +54,7 @@ The divider should appear when the reply finishes; if not, reopen the chat. To u
 ## When it says it needs an update
 
 You'll see a message like "clear-conversation needs an update". Nothing was changed. Running `--check` shows the same thing before it bites.
-Download `clear-conversation-mcp-server.zip` from the [latest release](https://github.com/William20100221/Cherry-Studio-Clear-Plugin/releases/latest) and unzip it over the old folder. Use Ctrl+K until then.
+Download `clear-conversation-mcp-server.zip` from the [latest release](https://github.com/William20100221/dsh-clear-conversation/releases/latest) and unzip it over the old folder. Use Ctrl+K until then.
 
 If the database is in an unusual place, set the `CHERRY_STUDIO_DB` environment variable to its full path.
 

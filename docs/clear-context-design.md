@@ -673,7 +673,7 @@ If Q2 says yes: when the Chat tool returns `cleared`, end the step through a sto
 - Commits: `git commit -S --signoff`, conventional scopes (`feat(composer):`, `feat(message-service):`, `feat(agent-session):`).
 - License: AGPL-3.0. The fork stays AGPL-3.0 with notices intact.
 
-### Skill repo (`William20100221/Cherry-Studio-Clear-Plugin`, already created)
+### Skill repo (`William20100221/dsh-clear-conversation`, already created)
 
 ```
 Cherry-Studio-Clear-Plugin/

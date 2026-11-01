@@ -1,42 +1,69 @@
 # dsh-clear-conversation
 
-Clear the conversation context in [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`) by asking in plain words, for example:
-"clear everything above, then explain merge sort".
+**Say "clear everything above" and DeepSeek Harness actually forgets it.**
 
-Older turns stay in the transcript, but they stop being sent to the model, so they stop costing tokens and stop leaking into new answers.
+[![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-0.2.x-4D6BFE)](https://github.com/deepseek-ai/deepseek-harness)
+[![dsh plugin](https://img.shields.io/badge/dsh-plugin-1f2937)](https://github.com/topics/dsh-plugin)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+![Zero build step](https://img.shields.io/badge/build-none%20needed-brightgreen)
 
-## Install
+Long sessions get slow and expensive: every request resends the whole history, and old topics leak into new answers.
+This [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`) plugin lets you drop that history in plain words, mid-conversation, without starting a new session.
 
-Needs DeepSeek Harness 0.2.1-rc.5 or a later 0.2.x.
+What a session looks like (illustrative):
 
-```sh
-dsh plugin --profile web add github:William20100221/Cherry-Studio-Clear-Plugin
+```text
+You:   My favourite colour is green. Now help me name a cat.
+dsh:   How about "Basil"? It suits a green-loving owner.
+
+You:   Clear everything above, then tell me a joke.
+dsh:   [clear_conversation]  Context cleared.
+       Why don't skeletons fight? They don't have the guts.
+
+You:   What's my favourite colour?
+dsh:   I don't know. You haven't told me in this conversation.
 ```
 
-Then restart `dsh web`. Use another profile name (`headless`, `sdk`, `acp`, or your own) to install it there instead.
-Remove it with `dsh plugin --profile web remove dsh-clear-conversation`.
+## Quick start
 
-## Use
+```sh
+dsh plugin --profile web add github:William20100221/dsh-clear-conversation
+dsh web
+```
 
-- **Ask in a message.** "Clear everything above, then …", "forget the previous chat", "start over", or the same in another language. The model calls the `clear_conversation` tool, replies "Context cleared.", and answers the rest of your message.
-- **Type `/clear`.** Clears everything at once while the agent is idle. Available where dsh shows commands (Web and SDK, not ACP or headless).
+That's it: no build step and no configuration. New to dsh, or want to try it safely first? See [TESTING.md](TESTING.md).
 
-The tool is told to ignore casual phrases such as "forget it, let's move on" or "how do I clear the context?".
+## Features
+
+- **Ask naturally.** "Clear everything above", "forget the previous chat", "start over", 清空上下文, in any language.
+- **Keeps your request.** "Clear, then do X" still does X: only the turns before your message are dropped.
+- **Saves tokens immediately.** The model stops receiving the old turns from its very next request, even within the same turn.
+- **Nothing is deleted.** Old turns stay in the transcript and the session log; they just stop being sent.
+- **Hard to trigger by accident.** Casual phrases like "forget it, let's move on" or "how do I clear the context?" are ignored.
+- **`/clear` command.** Clear everything yourself while the agent is idle (Web and SDK).
+- **Safe by construction.** The system prompt is never touched, and a clear that would split an unfinished tool call is refused.
 
 ## How it works
 
-dsh builds every request from the session's "surface", an ordered list of messages. Its own `/compact` command replaces a stretch of old turns with an AI-written summary. This plugin uses the same mechanism, but replaces them with one short note saying the conversation was cleared.
+dsh builds every request from the session's *surface*, an ordered list of messages. Its own `/compact` command replaces a run of old turns with an AI-written summary. This plugin uses the same mechanism, but writes one short note instead of a summary, so it costs nothing to run.
 
-- Your current message and everything after it stay, so "clear, then do X" still gets X done.
-- The system prompt is never touched.
-- The session log keeps every original event, and the transcript still shows them.
-- The model stops seeing the old turns from its very next request, even later in the same turn.
-- A clear that would cut through an unfinished tool call is refused, so requests never break.
+```mermaid
+flowchart LR
+  A[System prompt] --> B[Old turns] --> C["Your message: clear, then X"] --> D[Reply]
+  B -. replaced by .-> N["Note: earlier conversation cleared"]
+```
 
-## Limits
+## FAQ
 
-- No undo. The old turns remain readable in the transcript but cannot be put back into the model's context.
-- `/clear` needs an idle agent; it waits for the current turn to finish.
+**Does it delete my messages?** No. The transcript and session log keep everything. Only the model's view changes.
+
+**Can I undo a clear?** Not yet. The old turns stay readable, but cannot be put back into the model's context.
+
+**Which dsh surfaces does it work in?** The tool works everywhere the model runs. `/clear` appears where dsh shows commands: Web and SDK, not ACP or headless.
+
+**How do I remove it?** `dsh plugin --profile web remove dsh-clear-conversation`, then restart dsh.
+
+**Status?** Preview, for dsh 0.2.1-rc.5 and later 0.2.x releases. The clearing logic is covered by tests; a live run inside dsh is still being confirmed. Please [open an issue](https://github.com/William20100221/dsh-clear-conversation/issues) if something breaks.
 
 ## Other harnesses
 
