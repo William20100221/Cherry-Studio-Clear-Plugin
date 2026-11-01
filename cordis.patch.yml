@@ -1,0 +1,3 @@
+- insert:
+    - id: clear-conversation
+      name: dsh-clear-conversation

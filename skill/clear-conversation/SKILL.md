@@ -1,11 +1,11 @@
 ---
 name: clear-conversation
 description: Reset the conversation context when the user explicitly asks to clear, reset, forget or start over the conversation above. Uses a clear_conversation tool when the app provides one; otherwise does a soft reset and tells the user how to clear for real. Never use for casual mentions of "clear" or "forget", questions about the feature, or ambiguous requests.
-version: 0.3.0
+version: 0.4.0
 allowed-tools:
   - clear_conversation
   - mcp__cherry-tools__clear_conversation
-tags: [context, conversation, cherry-studio]
+tags: [context, conversation, deepseek-harness, cherry-studio]
 author: William20100221
 ---
 
@@ -53,6 +53,7 @@ Then tell the user, in one line, how to clear for real so old messages stop cost
 
 | App | Real clear |
 |---|---|
+| DeepSeek Harness (dsh) | Install the dsh-clear-conversation plugin, or type `/compact` to shrink the history |
 | Cherry Studio chat | Press Ctrl+K, or add the clear-conversation MCP server for a real clear by asking |
 | Cherry Studio agent | Start a new session, or type `/compact` to shrink the history |
 | Claude Code | Type `/clear` |

@@ -1,0 +1,41 @@
+{
+  "name": "dsh-clear-conversation",
+  "version": "0.5.0",
+  "description": "DeepSeek Harness plugin: clear the conversation context when you ask, so old turns stop costing tokens",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "clear.js",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test test/clear.test.js"
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "deepseek",
+    "context",
+    "clear"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/William20100221/Cherry-Studio-Clear-Plugin.git"
+  },
+  "engines": {
+    "dsh": ">=0.2.1-rc.5 <0.3.0"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-llm": ">=0.2.1-rc.5 <0.3.0",
+    "@deepseek-ai/dsh-tools": ">=0.2.1-rc.5 <0.3.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

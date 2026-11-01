@@ -33,6 +33,10 @@ The real clear needs the Cherry Studio build at
 
 Cherry Studio chats (not agents) do not load skills. In a chat, press Ctrl+K to clear, or use the fork, whose built-in tool works in chats without this skill.
 
+### DeepSeek Harness
+
+Copy the `clear-conversation` folder into `~/.agents/skills/` or `~/.dsh/skills/`. For a real clear that saves tokens, install the dsh plugin from this repo's root instead; its tool carries the same rules.
+
 ### Claude Code
 
 Copy the `clear-conversation` folder into `~/.claude/skills/` for every project, or into `.claude/skills/` inside one project.
