@@ -3,7 +3,14 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { commitClear, MARKER_SOURCE_KIND, planClear } from '../clear.js'
+import {
+  clearedPrompts,
+  commitClear,
+  formatClearSummary,
+  MARKER_SOURCE_KIND,
+  planClear,
+  releasedTokens
+} from '../clear.js'
 
 /** A minimal stand-in for dsh's Session: events by seq plus a surface that honours replace. */
 function fakeSession(events) {
@@ -22,6 +29,7 @@ function fakeSession(events) {
       assert.ok(startIdx !== -1 && endIdx >= startIdx, 'replace range must be on the surface')
       assert.deepEqual([...sourceEventSeqs].sort(), nodes.slice(startIdx, endIdx + 1).sort(), 'must cite every hidden node')
       nodes = [...nodes.slice(0, startIdx), seq, ...nodes.slice(endIdx + 1)]
+      return log.get(seq)
     }
   }
 }
@@ -72,4 +80,38 @@ test('/clear while idle hides everything after the system prompt', () => {
   assert.equal(p.clearedCount, 4)
   commitClear(session, p, createUserMessage)
   assert.deepEqual(kinds(session), ['system/message', MARKER_SOURCE_KIND])
+})
+
+test('counts released tokens from the meter, only for hidden nodes, and survives a broken meter', () => {
+  const session = fakeSession([system, prompt('a'), reply(), prompt('clear')])
+  const meter = { measure: () => ({ nodes: [0, 1, 2, 3].map((seq) => ({ seq, tokens: 100 + seq })) }) }
+  assert.equal(releasedTokens(meter, session, [1, 2]), 101 + 102)
+  assert.equal(releasedTokens({ measure: () => { throw new Error('no meter') } }, session, [1]), undefined)
+  assert.equal(releasedTokens(undefined, session, [1]), undefined)
+})
+
+test('the marker records its figures and the commit returns it for the card', () => {
+  const session = fakeSession([system, prompt('a'), reply(), prompt('clear')])
+  const marker = commitClear(session, plan(session, true), createUserMessage, { releasedTokens: 42 })
+  assert.deepEqual(marker.data.source, { kind: MARKER_SOURCE_KIND, clearedCount: 2, releasedTokens: 42 })
+})
+
+test('lists the first line of each cleared prompt, shortened and capped', () => {
+  const session = fakeSession([system, prompt('first\nsecond line'), reply(), prompt('x'.repeat(100))])
+  assert.deepEqual(clearedPrompts((seq) => session.eventAt(seq), [1, 2, 3], { width: 10 }), ['first', 'xxxxxxxxx…'])
+  const many = fakeSession([system, ...Array.from({ length: 4 }, (_, i) => prompt(`p${i}`))])
+  assert.deepEqual(clearedPrompts((seq) => many.eventAt(seq), [1, 2, 3, 4], { max: 2 }), ['p0', 'p1', '…and 2 more'])
+})
+
+test('the /clear summary keeps the layout the Web card parses', () => {
+  const text = formatClearSummary({ clearedCount: 6, releasedTokens: 12345, prompts: ['hi'], notice: 'update!' })
+  assert.deepEqual(text.split('\n'), [
+    'Context cleared · released ~12,345 input tokens · 6 messages',
+    '',
+    'Cleared:',
+    '• hi',
+    '',
+    'update!'
+  ])
+  assert.equal(formatClearSummary({ clearedCount: 1 }), 'Context cleared · 1 message')
 })

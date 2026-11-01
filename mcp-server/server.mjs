@@ -18,7 +18,7 @@ import readline from 'node:readline'
 import { DatabaseSync } from 'node:sqlite'
 import { pathToFileURL } from 'node:url'
 
-export const VERSION = '0.4.0'
+export const VERSION = '0.6.0'
 const RELEASES_URL = 'https://github.com/William20100221/dsh-clear-conversation/releases/latest'
 const LATEST_API = 'https://api.github.com/repos/William20100221/dsh-clear-conversation/releases/latest'
 const MIN_NODE = [22, 13]

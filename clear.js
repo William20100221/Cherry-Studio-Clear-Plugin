@@ -59,14 +59,57 @@ export function planClear(nodes, eventAt, { keepCurrentPrompt }) {
  * @param {{ append: Function }} session - the dsh Session.
  * @param {{ startSeq: number, endSeq: number, shadowedSeqs: number[] }} plan - a ready plan.
  * @param {(input: object) => object} createUserMessage - dsh-llm's message factory.
+ * @param {{ releasedTokens?: number }} [stats] - figures recorded on the marker for display.
+ * @returns the appended marker event.
  */
-export function commitClear(session, plan, createUserMessage) {
+export function commitClear(session, plan, createUserMessage, stats = {}) {
   const marker = createUserMessage({
     content: [{ type: 'text', text: MARKER_TEXT }],
-    source: { kind: MARKER_SOURCE_KIND }
+    // `source` is metadata, never sent to the model.
+    source: { kind: MARKER_SOURCE_KIND, clearedCount: plan.clearedCount, ...stats }
   })
-  session.append('user/message', marker, {
+  return session.append('user/message', marker, {
     surfaceOp: { op: 'replace', startSeq: plan.startSeq, endSeq: plan.endSeq },
     sourceEventSeqs: [...plan.shadowedSeqs]
   })
+}
+
+/**
+ * Input tokens the hidden nodes cost per request, from dsh's own token meter. Measure BEFORE the
+ * marker is appended. Returns undefined when no meter is available or it fails.
+ * @param {{ measure: Function } | undefined} meter - the `tokenMeter` service.
+ */
+export function releasedTokens(meter, session, shadowedSeqs) {
+  try {
+    const hidden = new Set(shadowedSeqs)
+    return meter.measure(session).nodes
+      .filter((node) => hidden.has(node.seq))
+      .reduce((sum, node) => sum + (node.tokens ?? node.heuristicTokens ?? 0), 0)
+  } catch {
+    return undefined
+  }
+}
+
+/** First line of each human prompt among the hidden nodes, for the cleared-content list. */
+export function clearedPrompts(eventAt, shadowedSeqs, { max = 10, width = 80 } = {}) {
+  const prompts = shadowedSeqs
+    .map((seq) => eventAt(seq))
+    .filter(isHumanPrompt)
+    .map((event) => (event.data.content ?? []).find((block) => block.type === 'text')?.text ?? '')
+    .map((text) => text.trim().split('\n')[0])
+    .filter(Boolean)
+    .map((line) => (line.length > width ? `${line.slice(0, width - 1)}…` : line))
+  return prompts.length > max ? [...prompts.slice(0, max), `…and ${prompts.length - max} more`] : prompts
+}
+
+/**
+ * The `/clear` result text. Line 1 is the summary; after a blank line come the cleared prompts.
+ * The client card relies on this layout; without the card it still reads as plain text.
+ */
+export function formatClearSummary({ clearedCount, releasedTokens: tokens, prompts = [], notice }) {
+  const released = tokens === undefined ? '' : ` · released ~${tokens.toLocaleString('en-US')} input tokens`
+  const lines = [`Context cleared${released} · ${clearedCount} ${clearedCount === 1 ? 'message' : 'messages'}`]
+  if (prompts.length > 0) lines.push('', 'Cleared:', ...prompts.map((prompt) => `• ${prompt}`))
+  if (notice) lines.push('', notice)
+  return lines.join('\n')
 }

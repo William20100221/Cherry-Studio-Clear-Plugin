@@ -3,6 +3,9 @@
 About 15 minutes. Uses DeepSeek's API, which costs a few cents for these tests.
 Commands are for PowerShell on Windows; they work the same in a macOS or Linux terminal.
 
+**Have the desktop app?** Skip steps 1 to 5. Open **Plugins → Add plugin**, keep the registry on **Official npm registry**, enter `github:William20100221/dsh-clear-conversation`, install, and restart the app if it asks. Then go to step 6.
+To pick up a newer version later, remove the plugin on the Plugins page and add it again.
+
 ## 1. Install the tools
 
 You need Node.js (check with `node --version`). Then install pnpm, which `dsh plugin` uses, and DeepSeek Harness:
@@ -66,10 +69,11 @@ Send each message in order and compare with the expected result.
 | 3 | `Clear everything above, then tell me a short joke.` | A `clear_conversation` tool card, "Context cleared.", then a joke |
 | 4 | `What is my favourite colour?` | It does not know |
 | 5 | `Forget it, let's move on. What is 2 + 2?` | 4, with no tool card |
-| 6 | `My favourite fruit is mango.` then type `/clear` | "Context cleared (N messages)." |
+| 6 | `My favourite fruit is mango.` then type `/clear` | A "Context cleared" card with a larger title and "released ~N input tokens · M messages" beside it |
+| 6b | Click that card | It opens and lists the cleared prompts, including "My favourite fruit is mango." |
 | 7 | `What is my favourite fruit?` | It does not know |
 
-Check 1 confirms the plugin loaded, checks 3 and 4 confirm a real clear, check 5 confirms casual phrases are ignored, and checks 6 and 7 confirm `/clear`.
+Check 1 confirms the plugin loaded, checks 3 and 4 confirm a real clear, check 5 confirms casual phrases are ignored, and checks 6, 6b and 7 confirm `/clear` and its card. If check 6 shows plain text instead of a card, the clear still worked; the card just did not load, so please report it.
 
 ## If something goes wrong
 
